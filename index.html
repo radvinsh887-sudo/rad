@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مخزن و پنل مدیریت قالب‌های وب</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Vazirmatn', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Vazirmatn Font -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.4);
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.8);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white custom-scrollbar">
+
+  <!-- هدر اصلی اپلیکیشن -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+          <i class="fa-solid fa-layer-group text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            مخزن قالب‌های وب
+            <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-normal">نسخه تک‌فایل</span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">سامانه مدیریت، پیش‌نمایش و دانلود سریع قالب‌های آماده</p>
+        </div>
+      </div>
+
+      <!-- کنترل‌های کاربری و ادمین -->
+      <div class="flex items-center gap-3">
+        <!-- دکمه‌های وضعیت ادمین -->
+        <div id="adminControls" class="flex items-center gap-2">
+          <!-- در جاوااسکریپت مقداردهی می‌شود -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- بدنه اصلی -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+    
+    <!-- نوار جستجو و فیلتر -->
+    <section class="glass-panel rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-xl">
+      <div class="relative flex-1">
+        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="جستجوی قالب بر اساس نام، توضیح یا پسوند..." 
+          class="w-full bg-slate-900/90 text-sm text-slate-200 placeholder-slate-500 rounded-xl pr-11 pl-4 py-3 border border-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+        >
+      </div>
+      
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 custom-scrollbar">
+        <button onclick="setCategoryFilter('all')" data-cat="all" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/25">همه</button>
+        <button onclick="setCategoryFilter('landing')" data-cat="landing" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80">لندینگ</button>
+        <button onclick="setCategoryFilter('dashboard')" data-cat="dashboard" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80">داشبورد</button>
+        <button onclick="setCategoryFilter('ecommerce')" data-cat="ecommerce" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80">فروشگاهی</button>
+        <button onclick="setCategoryFilter('portfolio')" data-cat="portfolio" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80">رزومه و پرتفولیو</button>
+        <button onclick="setCategoryFilter('other')" data-cat="other" class="cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80">سایر</button>
+      </div>
+    </section>
+
+    <!-- کانتینر شبکه کارت‌ها -->
+    <section>
+      <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- کارت‌ها داینامیک اضافه می‌شوند -->
+      </div>
+      
+      <!-- وضعیت خالی بودن مخزن -->
+      <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center glass-panel rounded-2xl border-dashed border-2 border-slate-800">
+        <div class="w-16 h-16 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-500 mb-4 text-2xl">
+          <i class="fa-regular fa-folder-open"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-300">قالبی یافت نشد</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm">موردی با این عبارت پیدا نشد، یا هنوز قالبی ثبت نکرده‌اید.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- مودال احراز هویت ادمین -->
+  <div id="loginModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-800 relative">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <h3 class="font-bold text-lg text-white flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-indigo-400"></i>
+          ورود به پنل مدیریت
+        </h3>
+        <button onclick="closeModal('loginModal')" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      
+      <form id="loginForm" onsubmit="handleAdminLogin(event)" class="mt-5 space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1.5">رمز ورود</label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="adminPasswordInput" 
+              required 
+              placeholder="رمز عبور مدیریت را وارد نمایید"
+              class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 pl-11"
+            >
+            <button 
+              type="button" 
+              onclick="togglePasswordVisibility('adminPasswordInput', this)" 
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1"
+            >
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-500">رمز عبور پیش‌فرض: <code class="text-indigo-400 bg-slate-900 px-1.5 py-0.5 rounded">admin123</code> (در پنل قابل تغییر است)</p>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-900 transition-colors">انصراف</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all">احراز هویت</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- مودال پنل مدیریت جامع ادمین -->
+  <div id="adminPanelModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-5xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-slate-800 overflow-hidden">
+      
+      <!-- هدر پنل -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
+        <div class="flex items-center gap-3">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h2 class="text-base sm:text-lg font-bold text-white">پنل جامع مدیریت مخزن</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="handleAdminLogout()" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg border border-rose-500/20 transition-all">
+            <i class="fa-solid fa-arrow-right-from-bracket ml-1"></i> خروج از حساب
+          </button>
+          <button onclick="closeModal('adminPanelModal')" class="text-slate-400 hover:text-white p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- تب‌های ناوبری پنل -->
+      <div class="flex border-b border-slate-800 bg-slate-900/30 px-6 gap-2 pt-2 overflow-x-auto custom-scrollbar">
+        <button onclick="switchAdminTab('editor')" id="tabBtnEditor" class="admin-tab-btn py-2.5 px-4 text-xs sm:text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2">
+          <i class="fa-solid fa-code"></i> افزودن / ویرایش قالب
+        </button>
+        <button onclick="switchAdminTab('reports')" id="tabBtnReports" class="admin-tab-btn py-2.5 px-4 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation"></i> گزارش‌های کاربران
+          <span id="reportsBadge" class="bg-rose-500/20 text-rose-400 text-[10px] px-1.5 py-0.5 rounded-full border border-rose-500/30 hidden">0</span>
+        </button>
+        <button onclick="switchAdminTab('security')" id="tabBtnSecurity" class="admin-tab-btn py-2.5 px-4 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-key"></i> تغییر رمز عبور
+        </button>
+      </div>
+
+      <!-- محتوای تب‌ها -->
+      <div class="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-950/40">
+        
+        <!-- تب ۱: فرم ثبت و ادیت قالب -->
+        <div id="adminTabEditor" class="space-y-5">
+          <div class="flex items-center justify-between">
+            <h3 id="editorFormTitle" class="text-sm font-semibold text-slate-200">مشخصات قالب جدید</h3>
+            <button type="button" onclick="resetEditorForm()" class="text-xs text-indigo-400 hover:underline">
+              <i class="fa-solid fa-plus ml-1"></i> فرم جدید
+            </button>
+          </div>
+
+          <form id="templateForm" onsubmit="handleSaveTemplate(event)" class="space-y-4">
+            <input type="hidden" id="editTemplateId" value="">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-slate-300 mb-1">عنوان قالب *</label>
+                <input type="text" id="tplTitle" required placeholder="مثال: لندینگ SaaS مدرن" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-300 mb-1">نام فایل (.html) *</label>
+                <input type="text" id="tplFilename" required placeholder="مثال: modern-landing.html" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono">
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-300 mb-1">دسته‌بندی *</label>
+                <select id="tplCategory" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+                  <option value="landing">لندینگ (Landing Page)</option>
+                  <option value="dashboard">داشبورد و ادمین (Dashboard)</option>
+                  <option value="ecommerce">فروشگاهی (E-commerce)</option>
+                  <option value="portfolio">رزومه و پورتفولیو (Portfolio)</option>
+                  <option value="other">سایر (Other)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-300 mb-1">کلاس آیکون FontAwesome</label>
+                <input type="text" id="tplIcon" placeholder="fa-solid fa-code" value="fa-solid fa-code" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-mono">
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-300 mb-1">تاریخ و ساعت انقضا (اختیاری)</label>
+                <input type="datetime-local" id="tplExpiry" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-300 mb-1">توضیحات کوتاه</label>
+              <textarea id="tplDesc" rows="2" placeholder="توضیح کاربردها و ویژگی‌های کلیدی قالب..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs text-slate-300">سورس‌کد کامل HTML *</label>
+                <button type="button" onclick="insertStarterTemplate()" class="text-[11px] bg-slate-800 hover:bg-slate-750 text-indigo-300 hover:text-indigo-200 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors">
+                  <i class="fa-solid fa-wand-magic-sparkles ml-1"></i> درج کد نمونه پایه
+                </button>
+              </div>
+              <textarea id="tplCode" required rows="10" placeholder="<!DOCTYPE html>..." class="w-full bg-slate-900 font-mono text-xs text-indigo-100 border border-slate-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500 custom-scrollbar leading-relaxed"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+              <button type="submit" class="px-6 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all">
+                <i class="fa-solid fa-floppy-disk ml-1"></i> ذخیره قالب در مخزن
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- تب ۲: لیست گزارش‌های خطا و تخلف -->
+        <div id="adminTabReports" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-200">گزارش‌های ارسالی کاربران</h3>
+            <button onclick="clearAllReports()" class="text-xs text-rose-400 hover:text-rose-300 hover:underline">
+              <i class="fa-solid fa-trash-can ml-1"></i> پاک‌سازی همه گزارش‌ها
+            </button>
+          </div>
+
+          <div id="reportsContainer" class="space-y-3">
+            <!-- گزارش‌ها داینامیک اضافه می‌شوند -->
+          </div>
+        </div>
+
+        <!-- تب ۳: تغییر رمز عبور ادمین -->
+        <div id="adminTabSecurity" class="hidden">
+          <div class="max-w-md mx-auto py-6">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+              <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center mx-auto mb-2 text-xl border border-indigo-500/20">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                <h4 class="text-sm font-bold text-white">تغییر کلمه عبور مدیریت</h4>
+                <p class="text-xs text-slate-400 mt-1">جهت حفظ امنیت، رمز عبور قوی انتخاب کنید.</p>
+              </div>
+
+              <form onsubmit="handleChangePassword(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">رمز عبور فعلی</label>
+                  <div class="relative">
+                    <input type="password" id="currentPwd" required placeholder="رمز جاری را وارد کنید" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 pl-9">
+                    <button type="button" onclick="togglePasswordVisibility('currentPwd', this)" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                      <i class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">رمز عبور جدید</label>
+                  <div class="relative">
+                    <input type="password" id="newPwd" required placeholder="حداقل ۶ کاراکتر" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 pl-9">
+                    <button type="button" onclick="togglePasswordVisibility('newPwd', this)" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                      <i class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">تکرار رمز عبور جدید</label>
+                  <div class="relative">
+                    <input type="password" id="confirmNewPwd" required placeholder="تکرار رمز عبور جدید" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 pl-9">
+                    <button type="button" onclick="togglePasswordVisibility('confirmNewPwd', this)" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200">
+                      <i class="fa-regular fa-eye text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all mt-2">
+                  به‌روزرسانی رمز عبور
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال پیش‌نمایش زنده واکنش‌گرا (Responsive Live Preview) -->
+  <div id="previewModal" class="fixed inset-0 z-50 hidden flex flex-col bg-slate-950/95 backdrop-blur-md">
+    <!-- نوار ابزار پیش‌نمایش -->
+    <div class="h-16 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/80">
+      <div class="flex items-center gap-3">
+        <h4 id="previewTitle" class="text-sm font-bold text-white truncate max-w-xs sm:max-w-md">پیش‌نمایش قالب</h4>
+      </div>
+
+      <!-- کنترل‌های سوئیچ سایز ریسپانسیو -->
+      <div class="flex items-center gap-1 bg-slate-950 border border-slate-800 p-1 rounded-xl">
+        <button onclick="setPreviewSize('100%', this)" class="preview-viewport-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white flex items-center gap-1.5 transition-all">
+          <i class="fa-solid fa-desktop"></i>
+          <span class="hidden sm:inline">دسکتاپ (۱۰۰٪)</span>
+        </button>
+        <button onclick="setPreviewSize('768px', this)" class="preview-viewport-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-all">
+          <i class="fa-solid fa-tablet-screen-button"></i>
+          <span class="hidden sm:inline">تبلت (768px)</span>
+        </button>
+        <button onclick="setPreviewSize('375px', this)" class="preview-viewport-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-all">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span class="hidden sm:inline">موبایل (375px)</span>
+        </button>
+      </div>
+
+      <!-- عملیات خروج و دانلود -->
+      <div class="flex items-center gap-2">
+        <button id="previewDownloadBtn" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-xl flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 transition-all">
+          <i class="fa-solid fa-download"></i>
+          <span class="hidden sm:inline">دانلود فایل</span>
+        </button>
+        <button onclick="closeModal('previewModal')" class="text-slate-400 hover:text-white p-2 text-base">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- آی‌فریم پیش‌نمایش با ترنزیشن انیمیشنی تغییر سایز -->
+    <div class="flex-1 bg-slate-900/40 p-4 flex items-center justify-center overflow-hidden">
+      <div id="previewFrameContainer" class="w-full h-full max-w-full bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300 ease-out border border-slate-700">
+        <iframe id="previewFrame" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال ثبت گزارش کاربر (Report Issue) -->
+  <div id="reportModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-800">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2">
+          <i class="fa-solid fa-flag"></i>
+          گزارش اشکال یا خرابی قالب
+        </h3>
+        <button onclick="closeModal('reportModal')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="reportForm" onsubmit="handleSubmitReport(event)" class="mt-4 space-y-3.5">
+        <input type="hidden" id="reportTemplateId">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">قالب مربوطه</label>
+          <input type="text" id="reportTemplateTitle" readonly class="w-full bg-slate-900 text-xs text-slate-400 border border-slate-800 rounded-xl px-3 py-2 cursor-not-allowed">
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">دلیل گزارش *</label>
+          <select id="reportReason" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-indigo-500">
+            <option value="broken_code">کد خراب یا ارور اجرایی</option>
+            <option value="style_issue">لود نشدن استایل‌ها یا آیکون‌ها</option>
+            <option value="not_responsive">عدم واکنش‌گرایی در موبایل</option>
+            <option value="copyright">نقض قوانین یا کپی‌رایت</option>
+            <option value="other">سایر موارد</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">توضیحات تکمیلی *</label>
+          <textarea id="reportDetails" required rows="3" placeholder="لطفاً مشکل رخ داده را شرح دهید..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('reportModal')" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-900">انصراف</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white transition-all shadow-lg shadow-rose-600/25">ارسال گزارش</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- کانتینر اعلان‌های شناور توست (Toast Notifications) -->
+  <div id="toastContainer" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- اسکریپت جاوااسکریپت پیاده‌سازی کامل -->
+  <script>
+    // کلیدهای پایگاه داده محلی (localStorage)
+    const STORAGE_KEYS = {
+      TEMPLATES: 'wb_templates_store',
+      REPORTS: 'wb_reports_store',
+      IS_ADMIN: 'wb_admin_auth_state',
+      PASSWORD: 'wb_admin_secret_pwd'
+    };
+
+    const DEFAULT_ADMIN_PWD = 'admin123';
+
+    // نمونه قالب‌های اولیه پیش‌فرض
+    const SEED_TEMPLATES = [
+      {
+        id: 'seed-1',
+        title: 'صفحه فرود مدرن استارتاپ',
+        filename: 'startup-landing.html',
+        category: 'landing',
+        icon: 'fa-solid fa-rocket',
+        desc: 'قالب تک‌صفحه‌ای شیک با فونت وزیرمتن و انیمیشن‌های CSS واکنش‌گرا برای معرفی نرم‌افزار و محصولات ابری.',
+        expiry: null,
+        downloads: 142,
+        code: `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استارتاپ نوین</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  <style>body { font-family: 'Vazirmatn', sans-serif; }<\/style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-6 text-center">
+  <div class="max-w-2xl bg-slate-800/80 p-8 rounded-3xl border border-slate-700 shadow-2xl backdrop-blur">
+    <span class="bg-indigo-500/20 text-indigo-400 text-xs px-3 py-1 rounded-full border border-indigo-500/30">محصول جدید</span>
+    <h1 class="text-3xl sm:text-4xl font-extrabold mt-4 mb-3 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">راهکار هوشمند کسب‌وکار شما</h1>
+    <p class="text-slate-300 text-sm leading-relaxed mb-6">سیستم ابری مدیریت یکپارچه اطلاعات، ارتباطات تیمی و تحلیل داده‌ها در کمترین زمان ممکن.</p>
+    <div class="flex justify-center gap-3">
+      <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg">شروع رایگان</button>
+      <button class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-6 py-2.5 rounded-xl text-sm">دموی زنده</button>
+    </div>
+  </div>
+</body>
+</html>`
+      },
+      {
+        id: 'seed-2',
+        title: 'داشبورد آنالیز و آمار وب‌سایت',
+        filename: 'analytics-dashboard.html',
+        category: 'dashboard',
+        icon: 'fa-solid fa-chart-line',
+        desc: 'پنل مدیریت آمار با ویجت‌های کارت آمار، وضعیت کاربران فعال و رابط کاربری دارک مود حرفه‌ای.',
+        expiry: '2026-12-31T23:59',
+        downloads: 89,
+        code: `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>داشبورد آنالیز</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  <style>body { font-family: 'Vazirmatn', sans-serif; }<\/style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-6 min-h-screen">
+  <header class="mb-6 flex justify-between items-center border-b border-slate-800 pb-4">
+    <h1 class="text-xl font-bold">داشبورد مانیتورینگ</h1>
+    <span class="text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">سرورها فعال</span>
+  </header>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+      <span class="text-xs text-slate-400">بازدید ماهانه</span>
+      <h3 class="text-2xl font-bold mt-2 text-indigo-400">۱۲۸,۴۰۰</h3>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+      <span class="text-xs text-slate-400">کاربران ثبت‌نامی</span>
+      <h3 class="text-2xl font-bold mt-2 text-emerald-400">۴,۹۲۰</h3>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+      <span class="text-xs text-slate-400">نرخ تبدیل</span>
+      <h3 class="text-2xl font-bold mt-2 text-purple-400">۳.۸٪</h3>
+    </div>
+  </div>
+</body>
+</html>`
+      }
+    ];
+
+    // متغیرهای وضعیت جاری (State)
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    // ================== ابزارهای کمکی و ایمن‌سازی ==================
+
+    // جلوگیری از تزریق کد مخرب XSS
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // تبدیل ارقام فارسی و عربی به ارقام استاندارد انگلیسی جهت مقایسه رمز
+    function normalizeDigits(str) {
+      if (!str) return '';
+      const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      return str.toString()
+        .replace(/[۰-۹]/g, w => persianDigits.indexOf(w))
+        .replace(/[٠-٩]/g, w => arabicDigits.indexOf(w));
+    }
+
+    // مدیریت امن LocalStorage همراه با Try/Catch
+    function getStoredData(key, fallback = []) {
+      try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : fallback;
+      } catch (err) {
+        console.error(`خطا در خواندن ${key} از حافظه:`, err);
+        return fallback;
+      }
+    }
+
+    function setStoredData(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (err) {
+        console.error(`خطا در نوشتن ${key} در حافظه:`, err);
+        showToast('خطا در ذخیره‌سازی داده‌ها در حافظه مرورگر', 'error');
+        return false;
+      }
+    }
+
+    // نمایش اعلان‌های شناور توست
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let border = 'border-slate-700 bg-slate-900/95 text-slate-200';
+      let icon = 'fa-solid fa-circle-info text-indigo-400';
+
+      if (type === 'success') {
+        border = 'border-emerald-500/30 bg-slate-900/95 text-emerald-300';
+        icon = 'fa-solid fa-circle-check text-emerald-400';
+      } else if (type === 'error') {
+        border = 'border-rose-500/30 bg-slate-900/95 text-rose-300';
+        icon = 'fa-solid fa-circle-exclamation text-rose-400';
+      }
+
+      toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md text-xs font-medium transform transition-all duration-300 pointer-events-auto opacity-0 translate-y-3 ${border}`;
+      toast.innerHTML = `<i class="${icon}"></i> <span>${escapeHtml(message)}</span>`;
+      
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('opacity-0', 'translate-y-3');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // بررسی ادمین بودن
+    function isAdminAuthenticated() {
+      try {
+        return localStorage.getItem(STORAGE_KEYS.IS_ADMIN) === 'true';
+      } catch {
+        return false;
+      }
+    }
+
+    function getAdminPassword() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEYS.PASSWORD);
+        return stored ? stored : DEFAULT_ADMIN_PWD;
+      } catch {
+        return DEFAULT_ADMIN_PWD;
+      }
+    }
+
+    // ================== مقداردهی اولیه برنامه ==================
+    function initApp() {
+      // بارگذاری داده‌های اولیه در صورت خالی بودن
+      if (!localStorage.getItem(STORAGE_KEYS.TEMPLATES)) {
+        setStoredData(STORAGE_KEYS.TEMPLATES, SEED_TEMPLATES);
+      }
+      if (!localStorage.getItem(STORAGE_KEYS.REPORTS)) {
+        setStoredData(STORAGE_KEYS.REPORTS, []);
+      }
+
+      renderAdminControls();
+      renderTemplates();
+      updateReportsBadge();
+
+      // لیسنر جستجو
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        renderTemplates();
+      });
+    }
+
+    // کنترل وضعیت ورود و خروج ادمین در هدر
+    function renderAdminControls() {
+      const container = document.getElementById('adminControls');
+      const isAdmin = isAdminAuthenticated();
+
+      if (isAdmin) {
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              مدیر ارشد
+            </span>
+            <button onclick="openAdminPanel()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i>
+              پنل مدیریت
+            </button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button onclick="openLoginModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-user-lock text-indigo-400"></i>
+            ورود ادمین
+          </button>
+        `;
+      }
+    }
+
+    // ================== رندر قالب‌ها و سیستم انقضا ==================
+    function isTemplateExpired(expiry) {
+      if (!expiry) return false;
+      const expDate = new Date(expiry);
+      return !isNaN(expDate.getTime()) && expDate < new Date();
+    }
+
+    function setCategoryFilter(category) {
+      currentFilter = category;
+      document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-cat') === category) {
+          btn.className = 'cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/25';
+        } else {
+          btn.className = 'cat-filter-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800/80';
+        }
+      });
+      renderTemplates();
+    }
+
+    function renderTemplates() {
+      const templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      const grid = document.getElementById('templatesGrid');
+      const emptyState = document.getElementById('emptyState');
+      const isAdmin = isAdminAuthenticated();
+
+      const filtered = templates.filter(t => {
+        const matchesCategory = currentFilter === 'all' || t.category === currentFilter;
+        const matchesSearch = !searchQuery || 
+          (t.title && t.title.toLowerCase().includes(searchQuery)) ||
+          (t.filename && t.filename.toLowerCase().includes(searchQuery)) ||
+          (t.desc && t.desc.toLowerCase().includes(searchQuery));
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+
+      grid.innerHTML = filtered.map(t => {
+        const expired = isTemplateExpired(t.expiry);
+        const canDownload = !expired || isAdmin;
+
+        return `
+          <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between border border-slate-800/80 hover:border-slate-700 transition-all duration-200 group relative">
+            <div>
+              <!-- بخش بالایی کارت -->
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-indigo-400 text-lg group-hover:scale-105 transition-transform">
+                  <i class="${escapeHtml(t.icon || 'fa-solid fa-code')}"></i>
+                </div>
+                <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                  ${expired ? `
+                    <span class="text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <i class="fa-solid fa-clock-rotate-left"></i> منقضی شده
+                    </span>
+                  ` : ''}
+                  <span class="text-[10px] bg-slate-900 text-slate-400 border border-slate-800 px-2 py-0.5 rounded-full font-mono">
+                    ${escapeHtml(t.category)}
+                  </span>
+                  <button onclick="openReportModal('${t.id}', '${escapeHtml(t.title)}')" title="گزارش خرابی یا تخلف" class="text-slate-400 hover:text-rose-400 p-1 transition-colors">
+                    <i class="fa-regular fa-flag text-xs"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- عنوان و نام فایل -->
+              <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors">${escapeHtml(t.title)}</h3>
+              <p class="text-xs font-mono text-indigo-400/80 mt-0.5 dir-ltr text-right">${escapeHtml(t.filename)}</p>
+              
+              <!-- توضیحات -->
+              <p class="text-xs text-slate-400 mt-2.5 line-clamp-2 leading-relaxed">
+                ${escapeHtml(t.desc || 'بدون توضیح')}
+              </p>
+            </div>
+
+            <!-- بخش پایینی کارت -->
+            <div class="mt-5 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-slate-500 flex items-center gap-1">
+                <i class="fa-solid fa-download text-[10px]"></i> ${t.downloads || 0} دانلود
+              </span>
+
+              <div class="flex items-center gap-1.5">
+                <button onclick="openLivePreview('${t.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 transition-colors flex items-center gap-1">
+                  <i class="fa-solid fa-eye text-xs"></i> پیش‌نمایش
+                </button>
+                
+                ${canDownload ? `
+                  <button onclick="downloadTemplate('${t.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1">
+                    <i class="fa-solid fa-download text-xs"></i> دانلود
+                  </button>
+                ` : `
+                  <button disabled title="مهلت دانلود این فایل به اتمام رسیده است" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-slate-600 border border-slate-800/60 cursor-not-allowed flex items-center gap-1">
+                    <i class="fa-solid fa-ban text-xs"></i> دانلود
+                  </button>
+                `}
+
+                ${isAdmin ? `
+                  <button onclick="editTemplate('${t.id}')" title="ویرایش قالب" class="p-1.5 rounded-lg text-xs text-indigo-400 hover:bg-slate-900 border border-transparent hover:border-slate-800">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button onclick="deleteTemplate('${t.id}')" title="حذف قالب" class="p-1.5 rounded-lg text-xs text-rose-400 hover:bg-slate-900 border border-transparent hover:border-slate-800">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ================== سیستم دانلود کلاینت با Blob ==================
+    function downloadTemplate(templateId) {
+      const templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      const template = templates.find(t => t.id === templateId);
+
+      if (!template) {
+        showToast('قالب مورد نظر یافت نشد!', 'error');
+        return;
+      }
+
+      const expired = isTemplateExpired(template.expiry);
+      if (expired && !isAdminAuthenticated()) {
+        showToast('مهلت انقضای دانلود این قالب سپری شده است.', 'error');
+        return;
+      }
+
+      // ایجاد فایل Blob
+      try {
+        const blob = new Blob([template.code || ''], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        let filename = template.filename || 'template.html';
+        if (!filename.toLowerCase().endsWith('.html')) {
+          filename += '.html';
+        }
+
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // افزایش شمارنده دانلود
+        template.downloads = (template.downloads || 0) + 1;
+        setStoredData(STORAGE_KEYS.TEMPLATES, templates);
+        renderTemplates();
+
+        showToast(`فایل ${filename} با موفقیت دانلود شد.`, 'success');
+      } catch (err) {
+        console.error('Download Error:', err);
+        showToast('خطا در تولید فایل دانلود', 'error');
+      }
+    }
+
+    // ================== پیش‌نمایش ریسپانسیو زنده ==================
+    let activePreviewTemplateId = null;
+
+    function openLivePreview(templateId) {
+      const templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      const template = templates.find(t => t.id === templateId);
+
+      if (!template) {
+        showToast('قالب جهت پیش‌نمایش یافت نشد!', 'error');
+        return;
+      }
+
+      activePreviewTemplateId = templateId;
+      document.getElementById('previewTitle').textContent = `پیش‌نمایش: ${template.title}`;
+
+      const iframe = document.getElementById('previewFrame');
+      iframe.srcdoc = template.code || '<html><body>بدون کد</body></html>';
+
+      // تنظیم دکمه دانلود داخل پیش‌نمایش
+      const dlBtn = document.getElementById('previewDownloadBtn');
+      dlBtn.onclick = () => downloadTemplate(templateId);
+
+      setPreviewSize('100%', document.querySelector('.preview-viewport-btn'));
+      openModal('previewModal');
+    }
+
+    function setPreviewSize(width, activeBtn) {
+      const container = document.getElementById('previewFrameContainer');
+      container.style.maxWidth = width;
+
+      document.querySelectorAll('.preview-viewport-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-indigo-600', 'text-white');
+      }
+    }
+
+    // ================== احراز هویت ادمین ==================
+    function openLoginModal() {
+      document.getElementById('adminPasswordInput').value = '';
+      openModal('loginModal');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('adminPasswordInput').value;
+      const normalizedInput = normalizeDigits(input.trim());
+      const savedPwd = normalizeDigits(getAdminPassword());
+
+      if (normalizedInput === savedPwd) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.IS_ADMIN, 'true');
+        } catch {}
+        closeModal('loginModal');
+        renderAdminControls();
+        renderTemplates();
+        showToast('با موفقیت به عنوان مدیر وارد شدید.', 'success');
+        openAdminPanel();
+      } else {
+        showToast('رمز عبور وارد شده نادرست است!', 'error');
+      }
+    }
+
+    function handleAdminLogout() {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.IS_ADMIN);
+      } catch {}
+      closeModal('adminPanelModal');
+      renderAdminControls();
+      renderTemplates();
+      showToast('از حساب مدیریت خارج شدید.', 'info');
+    }
+
+    // ================== پنل مدیریت (CMS & Tabs) ==================
+    function openAdminPanel() {
+      if (!isAdminAuthenticated()) {
+        openLoginModal();
+        return;
+      }
+      switchAdminTab('editor');
+      renderReportsList();
+      openModal('adminPanelModal');
+    }
+
+    function switchAdminTab(tabName) {
+      const tabs = ['editor', 'reports', 'security'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (t === tabName) {
+          el.classList.remove('hidden');
+          btn.className = 'admin-tab-btn py-2.5 px-4 text-xs sm:text-sm font-medium border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2';
+        } else {
+          el.classList.add('hidden');
+          btn.className = 'admin-tab-btn py-2.5 px-4 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2';
+        }
+      });
+    }
+
+    // قالب شروع (Starter Code)
+    function insertStarterTemplate() {
+      const starter = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قالب جدید</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  <style>body { font-family: 'Vazirmatn', sans-serif; }<\/style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+  <div class="text-center">
+    <h1 class="text-3xl font-bold text-indigo-400 mb-2">سلام، دنیا!</h1>
+    <p class="text-slate-400 text-sm">این یک قالب تمیز و واکنش‌گرا با فونت وزیرمتن و Tailwind است.</p>
+  </div>
+</body>
+</html>`;
+      document.getElementById('tplCode').value = starter;
+      showToast('کد تمپلیت استاندارد درج شد.', 'info');
+    }
+
+    function resetEditorForm() {
+      document.getElementById('editTemplateId').value = '';
+      document.getElementById('editorFormTitle').textContent = 'مشخصات قالب جدید';
+      document.getElementById('templateForm').reset();
+      document.getElementById('tplIcon').value = 'fa-solid fa-code';
+    }
+
+    function editTemplate(id) {
+      const templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      const item = templates.find(t => t.id === id);
+      if (!item) return;
+
+      openAdminPanel();
+      switchAdminTab('editor');
+
+      document.getElementById('editTemplateId').value = item.id;
+      document.getElementById('editorFormTitle').textContent = `ویرایش قالب: ${item.title}`;
+      document.getElementById('tplTitle').value = item.title || '';
+      document.getElementById('tplFilename').value = item.filename || '';
+      document.getElementById('tplCategory').value = item.category || 'other';
+      document.getElementById('tplIcon').value = item.icon || 'fa-solid fa-code';
+      document.getElementById('tplExpiry').value = item.expiry ? item.expiry.slice(0, 16) : '';
+      document.getElementById('tplDesc').value = item.desc || '';
+      document.getElementById('tplCode').value = item.code || '';
+    }
+
+    function handleSaveTemplate(e) {
+      e.preventDefault();
+      const templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      const editId = document.getElementById('editTemplateId').value;
+
+      let filename = document.getElementById('tplFilename').value.trim();
+      if (!filename.toLowerCase().endsWith('.html')) {
+        filename += '.html';
+      }
+
+      const templateData = {
+        title: document.getElementById('tplTitle').value.trim(),
+        filename: filename,
+        category: document.getElementById('tplCategory').value,
+        icon: document.getElementById('tplIcon').value.trim() || 'fa-solid fa-code',
+        expiry: document.getElementById('tplExpiry').value ? new Date(document.getElementById('tplExpiry').value).toISOString() : null,
+        desc: document.getElementById('tplDesc').value.trim(),
+        code: document.getElementById('tplCode').value
+      };
+
+      if (editId) {
+        // ویرایش
+        const idx = templates.findIndex(t => t.id === editId);
+        if (idx !== -1) {
+          templates[idx] = { ...templates[idx], ...templateData };
+          showToast('قالب با موفقیت به‌روزرسانی شد.', 'success');
+        }
+      } else {
+        // افزودن جدید
+        const newTemplate = {
+          id: 'tpl_' + Date.now(),
+          ...templateData,
+          downloads: 0
+        };
+        templates.unshift(newTemplate);
+        showToast('قالب جدید با موفقیت اضافه شد.', 'success');
+      }
+
+      setStoredData(STORAGE_KEYS.TEMPLATES, templates);
+      resetEditorForm();
+      renderTemplates();
+      closeModal('adminPanelModal');
+    }
+
+    function deleteTemplate(id) {
+      if (!confirm('آیا از حذف کامل این قالب اطمینان دارید؟ تمام گزارش‌های این قالب نیز پاک خواهند شد.')) return;
+
+      let templates = getStoredData(STORAGE_KEYS.TEMPLATES, []);
+      templates = templates.filter(t => t.id !== id);
+      setStoredData(STORAGE_KEYS.TEMPLATES, templates);
+
+      // پاک‌سازی گزارش‌های متصل به این قالب
+      let reports = getStoredData(STORAGE_KEYS.REPORTS, []);
+      reports = reports.filter(r => r.templateId !== id);
+      setStoredData(STORAGE_KEYS.REPORTS, reports);
+
+      updateReportsBadge();
+      renderReportsList();
+      renderTemplates();
+      showToast('قالب با موفقیت حذف گردید.', 'info');
+    }
+
+    // ================== سیستم گزارش‌دهی کاربران ==================
+    function openReportModal(templateId, templateTitle) {
+      document.getElementById('reportTemplateId').value = templateId;
+      document.getElementById('reportTemplateTitle').value = templateTitle;
+      document.getElementById('reportDetails').value = '';
+      openModal('reportModal');
+    }
+
+    function handleSubmitReport(e) {
+      e.preventDefault();
+      const tId = document.getElementById('reportTemplateId').value;
+      const tTitle = document.getElementById('reportTemplateTitle').value;
+      const reason = document.getElementById('reportReason').value;
+      const details = document.getElementById('reportDetails').value.trim();
+
+      const reports = getStoredData(STORAGE_KEYS.REPORTS, []);
+      const newReport = {
+        id: 'rep_' + Date.now(),
+        templateId: tId,
+        templateTitle: tTitle,
+        reason: reason,
+        details: details,
+        createdAt: new Date().toLocaleDateString('fa-IR')
+      };
+
+      reports.unshift(newReport);
+      setStoredData(STORAGE_KEYS.REPORTS, reports);
+      closeModal('reportModal');
+      updateReportsBadge();
+      showToast('گزارش شما ارسال شد و توسط مدیریت بررسی می‌شود.', 'success');
+    }
+
+    function updateReportsBadge() {
+      const reports = getStoredData(STORAGE_KEYS.REPORTS, []);
+      const badge = document.getElementById('reportsBadge');
+      if (reports.length > 0) {
+        badge.textContent = reports.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderReportsList() {
+      const reports = getStoredData(STORAGE_KEYS.REPORTS, []);
+      const container = document.getElementById('reportsContainer');
+
+      if (reports.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-500 text-xs">
+            <i class="fa-regular fa-circle-check text-2xl mb-2 text-slate-600 block"></i>
+            هیچ گزارش فعالی ثبت نشده است.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = reports.map(r => {
+        let reasonLabel = 'سایر';
+        if (r.reason === 'broken_code') reasonLabel = 'کد خراب یا ارور اجرایی';
+        if (r.reason === 'style_issue') reasonLabel = 'لود نشدن استایل یا آیکون';
+        if (r.reason === 'not_responsive') reasonLabel = 'عدم ریسپانسیو در موبایل';
+        if (r.reason === 'copyright') reasonLabel = 'کپی‌رایت و تخلف';
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">${reasonLabel}</span>
+                <h4 class="text-xs font-semibold text-white">${escapeHtml(r.templateTitle)}</h4>
+                <span class="text-[10px] text-slate-500">${r.createdAt}</span>
+              </div>
+              <p class="text-xs text-slate-300 mt-2 bg-slate-950 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed font-sans">
+                ${escapeHtml(r.details)}
+              </p>
+            </div>
+            <div class="flex items-center gap-2 self-end md:self-center">
+              <button onclick="editTemplate('${r.templateId}')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-colors">
+                <i class="fa-solid fa-pen-to-square ml-1"></i> بررسی و ویرایش قالب
+              </button>
+              <button onclick="deleteSingleReport('${r.id}')" class="p-1.5 rounded-lg text-xs text-rose-400 hover:bg-slate-800 border border-slate-800">
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteSingleReport(reportId) {
+      let reports = getStoredData(STORAGE_KEYS.REPORTS, []);
+      reports = reports.filter(r => r.id !== reportId);
+      setStoredData(STORAGE_KEYS.REPORTS, reports);
+      updateReportsBadge();
+      renderReportsList();
+      showToast('گزارش بایگانی و حذف شد.', 'info');
+    }
+
+    function clearAllReports() {
+      if (!confirm('آیا مایل به حذف تمام گزارش‌ها هستید؟')) return;
+      setStoredData(STORAGE_KEYS.REPORTS, []);
+      updateReportsBadge();
+      renderReportsList();
+      showToast('کلیه گزارش‌ها پاک شدند.', 'info');
+    }
+
+    // ================== تغییر رمز عبور ادمین ==================
+    function handleChangePassword(e) {
+      e.preventDefault();
+      const currentInput = normalizeDigits(document.getElementById('currentPwd').value.trim());
+      const newPwd = normalizeDigits(document.getElementById('newPwd').value.trim());
+      const confirmPwd = normalizeDigits(document.getElementById('confirmNewPwd').value.trim());
+
+      const activePwd = normalizeDigits(getAdminPassword());
+
+      if (currentInput !== activePwd) {
+        showToast('رمز عبور فعلی اشتباه است!', 'error');
+        return;
+      }
+
+      if (newPwd.length < 6) {
+        showToast('رمز عبور جدید باید حداقل ۶ رقم یا کاراکتر باشد.', 'error');
+        return;
+      }
+
+      if (newPwd !== confirmPwd) {
+        showToast('رمز عبور جدید با تکرار آن یکسان نیست!', 'error');
+        return;
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEYS.PASSWORD, newPwd);
+        showToast('رمز عبور مدیریت با موفقیت تغییر یافت.', 'success');
+        document.getElementById('currentPwd').value = '';
+        document.getElementById('newPwd').value = '';
+        document.getElementById('confirmNewPwd').value = '';
+        switchAdminTab('editor');
+      } catch (err) {
+        showToast('خطا در ذخیره‌سازی رمز عبور جدید', 'error');
+      }
+    }
+
+    // ================== عملکردهای رابط کاربری (UI Helpers) ==================
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash text-xs text-indigo-400';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye text-xs text-slate-400';
+      }
+    }
+
+    // راه‌اندازی هنگام لود سند
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
